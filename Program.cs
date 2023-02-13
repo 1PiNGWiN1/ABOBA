@@ -13,6 +13,7 @@ namespace IJunior.OOP
 
             Seller seller = new Seller();
             Buyer buyer = new Buyer();
+            Shop shop = new Shop(seller,buyer);
             bool isWork = true;
             int money = 100;
 
@@ -21,9 +22,10 @@ namespace IJunior.OOP
                 Console.WriteLine($"Ваши средства: {money} руб.");
 
                 Console.WriteLine($"\nТовары на прилавке: \n");
-                seller.ShowGoods();
 
-                Console.WriteLine($"Выберите пункт взаимодействия:" +
+                seller.ShowProducts();
+
+                Console.WriteLine($"\nВыберите пункт взаимодействия:" +
                     $"\n{ShowProductsCommand}. Купить товар " +
                     $"\n{ShowBagCommand}. Посмотреть свою сумку " +
                     $"\n{ExitCommand}. Выход\n");
@@ -31,7 +33,9 @@ namespace IJunior.OOP
                 switch (Console.ReadLine())
                 {
                     case ShowProductsCommand:
-                        //buyer.PutInBag(seller.TransferGoods(ref money));
+                        //seller.SaleProducts(ref money);
+                        //buyer.PutInBag();
+                        shop.TrySellProducts(ref money);
                         break;
 
                     case ShowBagCommand:
@@ -49,6 +53,49 @@ namespace IJunior.OOP
 
                 Console.ReadKey();
                 Console.Clear();
+            }
+        }
+    }
+
+    class Shop
+    {
+        private Seller _seller;
+        private Buyer _buyer;
+
+        public Shop(Seller seller, Buyer buyer)
+        {
+            _seller = seller;
+            _buyer = buyer;
+        }
+
+        public void TrySellProducts(ref int money)
+        {
+            if (_seller.ProductsCount() == 0)
+            {
+                Console.WriteLine("\nВ магазине нет товаров!\n");
+                return;
+            }
+                      
+            (bool IsFound,Product Product) productInfo = _seller.IsProductExists();
+
+            if (productInfo.IsFound == false)
+            {
+                Console.WriteLine("\nДанного товара нет в магазине\n");
+            }
+            else
+            {
+                if (productInfo.Product.Price > money)
+                {
+                    Console.WriteLine("\nНедостаточного денег для покупки товара\n");                    
+                }
+                else
+                {
+                    
+                    Console.WriteLine("\nТовар куплен!\n");
+                    money -= productInfo.Product.Price;
+                    _seller.ProductOut(productInfo.Product);
+                    _buyer.PutInBag(productInfo.Product);
+                }
             }
         }
     }
@@ -72,11 +119,11 @@ namespace IJunior.OOP
         }
     }
 
-    class Human
+    abstract class Human
     {
-        public List<Product> _products = new List<Product>();
+        protected List<Product> _products;
 
-        public void ShowGoods()
+        public void ShowProducts()
         {
             foreach (Product product in _products)
             {
@@ -87,113 +134,91 @@ namespace IJunior.OOP
 
     class Seller : Human
     {
-        private List<Product> _products = new List<Product>();
-
         public Seller()
         {
+            _products = new List<Product>();
             CreateProducts();
+        }
+
+        public List<Product> GiveProducts()
+        {
+            List<Product> products = new List<Product>(_products);
+            return products;
+        }
+
+        public int ProductsCount()
+        {
+            return _products.Count;
         }
 
         private void CreateProducts()
         {
-            Random random = new Random();
-            int minRandomCount = 10;
-            int maxRandomCount = 145;
-            int FixPrice = 15;
-            int maxProducts = 10;
-            List<string> productsNames = new List<string> () 
-            { 
-                "Мыло твердое",
-                "Мыло жидкое",
-                "Полотенце",
-                "Бритва",
-                "Пена для бритья",
-                "Гель для душа",
-                "Шампунь для головы",
-                "Зубная паста",
-                "Зубная щетка",
-                "Вехотка"
-            };
-
-            for (int i = 0; i < maxProducts; i++)
-            {
-                string productName = productsNames[random.Next(productsNames.Count)];               
-
-                Product product = new Product(productName, FixPrice, random.Next(minRandomCount,maxRandomCount));
-
-                foreach(Product product1 in _products)
-                {
-                    
-                }
-
-                _products.Add(product);
-            }
+            /*1*/
+            _products.Add(new Product("Мыло твердое", 15, 245));
+            /*2*/
+            _products.Add(new Product("Мыло жидкое", 15, 245));
+            /*3*/
+            _products.Add(new Product("Пена для бритья", 15, 245));
+            /*4*/
+            _products.Add(new Product("Гель для душа", 15, 245));
+            /*5*/
+            _products.Add(new Product("Шампунь для головы", 15, 245));
+            /*6*/
+            _products.Add(new Product("Полотенце", 15, 245));
+            /*7*/
+            _products.Add(new Product("Зубная щётка", 15, 245));
+            /*8*/
+            _products.Add(new Product("Зубная паста", 15, 245));
+            /*9*/
+            _products.Add(new Product("Бритва", 15, 245));
+            /*0*/
+            _products.Add(new Product("Гель для бритья", 15, 245));
         }
 
-        //private void SaleProducts(ref int money)
-        //{
-        //    if (base._products.Count > 0)
-        //    {
-        //        bool isFound = false;
-        //        Console.WriteLine("\nВведите наименование товара: \n");
-        //        string input = Console.ReadLine();
-
-        //        foreach (Product product in base._products)
-        //        {
-        //            if (product.Name == input && product.Price <= money)
-        //            {
-        //                Console.WriteLine("\nТовар куплен!\n");
-        //                money -= product.Price;
-        //                _products = product;
-        //                base._products.Remove(product);
-        //                isFound = true;
-        //                break;
-        //            }
-        //            else if (product.Name == input && product.Price > money)
-        //            {
-        //                Console.WriteLine("\nНедостаточного денег для покупки товара\n");
-        //                isFound = true;
-        //                break;
-        //            }
-        //        }
-
-        //        if (isFound == false)
-        //        {
-        //            Console.WriteLine("\nДанного товара нет в магазине\n");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        Console.WriteLine("\nВ магазине нет товаров!\n");
-        //    }
-        //}
-
-        //public Product TransferGoods(ref int money)
-        //{
-        //    SaleProducts(ref money);
-        //    return _products;
-        //}
-
-        private int ReadInt()
+        public (bool, Product) IsProductExists()
         {
-            int result = 0;
-            while (int.TryParse(Console.ReadLine(), out result) == false) ;
-            return result;
+            Console.WriteLine("\nВведите наименование товара: \n");
+            string input = Console.ReadLine();
+
+            foreach (Product product in _products)
+            {
+                if (product.Name == input)
+                {
+                    return (true,product);
+                }                
+            }
+
+            return (false, null);
+        }
+
+        public void ProductOut (Product product)
+        {
+            _products.Remove(product);
         }
     }
 
     class Buyer : Human
     {
-        public void PutInBag(Product goods)
+        public Buyer()
         {
-            _products.Add(goods);
+            _products = new List<Product>();
+        }
+
+        public void PutInBag(Product product)
+        {
+            _products.Add(product);
         }
 
         public void LookInBag()
         {
+            if (_products.Count == 0)
+            {
+                Console.WriteLine($"В инвентаре пусто!");
+            }    
+
             foreach (Product product in _products)
             {
-                Console.Write($"{product.Name}");
+                Console.Write($"{product.Name} ");
             }
         }
     }
