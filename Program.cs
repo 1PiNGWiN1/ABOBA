@@ -32,9 +32,7 @@ namespace IJunior.OOP
 
                 switch (Console.ReadLine())
                 {
-                    case ShowProductsCommand:
-                        //seller.SaleProducts(ref money);
-                        //buyer.PutInBag();
+                    case ShowProductsCommand:                        
                         shop.TrySellProducts(ref money);
                         break;
 
@@ -70,7 +68,7 @@ namespace IJunior.OOP
 
         public void TrySellProducts(ref int money)
         {
-            if (_seller.ProductsCount() == 0)
+            if (_seller.ProductCount == 0)
             {
                 Console.WriteLine("\nВ магазине нет товаров!\n");
                 return;
@@ -89,11 +87,10 @@ namespace IJunior.OOP
                     Console.WriteLine("\nНедостаточного денег для покупки товара\n");                    
                 }
                 else
-                {
-                    
+                {                    
                     Console.WriteLine("\nТовар куплен!\n");
                     money -= productInfo.Product.Price;
-                    _seller.ProductOut(productInfo.Product);
+                    _seller.RemoveProduct(productInfo.Product);
                     _buyer.PutInBag(productInfo.Product);
                 }
             }
@@ -134,10 +131,12 @@ namespace IJunior.OOP
 
     class Seller : Human
     {
+        public int ProductCount => _products.Count;
+
         public Seller()
         {
             _products = new List<Product>();
-            CreateProducts();
+            FillProducts();
         }
 
         public List<Product> GiveProducts()
@@ -146,32 +145,22 @@ namespace IJunior.OOP
             return products;
         }
 
-        public int ProductsCount()
-        {
-            return _products.Count;
-        }
+        //public int ProductsCount()
+        //{
+        //    return _products.Count;
+        //}
 
-        private void CreateProducts()
+        private void FillProducts()
         {
-            /*1*/
             _products.Add(new Product("Мыло твердое", 15, 245));
-            /*2*/
             _products.Add(new Product("Мыло жидкое", 15, 245));
-            /*3*/
             _products.Add(new Product("Пена для бритья", 15, 245));
-            /*4*/
             _products.Add(new Product("Гель для душа", 15, 245));
-            /*5*/
             _products.Add(new Product("Шампунь для головы", 15, 245));
-            /*6*/
             _products.Add(new Product("Полотенце", 15, 245));
-            /*7*/
             _products.Add(new Product("Зубная щётка", 15, 245));
-            /*8*/
             _products.Add(new Product("Зубная паста", 15, 245));
-            /*9*/
             _products.Add(new Product("Бритва", 15, 245));
-            /*0*/
             _products.Add(new Product("Гель для бритья", 15, 245));
         }
 
@@ -191,7 +180,7 @@ namespace IJunior.OOP
             return (false, null);
         }
 
-        public void ProductOut (Product product)
+        public void RemoveProduct (Product product)
         {
             _products.Remove(product);
         }
@@ -214,6 +203,7 @@ namespace IJunior.OOP
             if (_products.Count == 0)
             {
                 Console.WriteLine($"В инвентаре пусто!");
+                return;
             }    
 
             foreach (Product product in _products)
